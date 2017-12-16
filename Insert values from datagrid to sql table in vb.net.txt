@@ -1,0 +1,37 @@
+ Private Sub save_Button_Click(sender As Object, e As EventArgs) Handles save_Button.Click
+        Me.Cursor = Cursors.WaitCursor
+        Try
+            If sqlConnection.State <> ConnectionState.Open Then
+                sqlConnection.Open()
+            End If
+            Dim sqlCommand As New SqlCommand
+            sqlCommand.Connection = sqlConnection
+            sqlCommand.CommandType = CommandType.Text
+            sqlCommand.CommandText = "INSERT INTO [NU_DB].[dbo].[Attendace_Staff] (Staff_id,A_date,Time_In_M,Time_Out_M,Time_In_A,Time_Out_A) VALUES " & _
+                                     "(@Staff_id,@A_date,@Time_In_M,@Time_Out_M,@Time_In_A,@Time_Out_A)"
+            For Each row As DataGridViewRow In staff_DataGridView.Rows
+                If row.Cells("Time_In_M").Value = "" Or row.Cells("shortname").Value = "" Or row.Cells("Time_In_A").Value = "" Or row.Cells("Time_Out_A").Value = "" Then
+                    Continue For
+                End If
+
+                With sqlCommand.Parameters
+                    .Clear()
+                    .AddWithValue("@Staff_id", row.Cells("shortname").Value)
+                    .AddWithValue("@A_date", attendance_DateTimePicker.Value)
+                    .AddWithValue("@Time_In_M", row.Cells("Time_In_M").Value)
+                    .AddWithValue("@Time_Out_M", row.Cells("Time_Out_M").Value)
+                    .AddWithValue("@Time_In_A", row.Cells("Time_In_A").Value)
+                    .AddWithValue("@Time_Out_A", row.Cells("Time_Out_A").Value)
+                End With
+                sqlCommand.ExecuteNonQuery()
+            Next
+            MessageBox.Show("Insert Successful", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Catch ex As Exception
+            MessageBox.Show(ex.Message)
+        Finally
+            If sqlConnection.State <> ConnectionState.Closed Then
+                sqlConnection.Close()
+            End If
+            Me.Cursor = Cursors.Default
+        End Try
+    End Sub
